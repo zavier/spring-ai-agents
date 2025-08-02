@@ -5,6 +5,6 @@ import org.springframework.context.annotation.Import;
 
 @Configuration
 @Import(AgentBeanDefinitionRegistrar.class)
-public class AgentAutoRegistrar {
+public class AgentAutoConfiguration {
 
 }

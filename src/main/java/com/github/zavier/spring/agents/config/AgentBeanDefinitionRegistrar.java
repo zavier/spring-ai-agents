@@ -2,12 +2,10 @@ package com.github.zavier.spring.agents.config;
 
 import com.github.zavier.spring.agents.agent.Agent;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
@@ -89,21 +87,18 @@ public class AgentBeanDefinitionRegistrar implements ImportBeanDefinitionRegistr
             }
         }
 
-        // chatModel
-        if (beanFactory instanceof ConfigurableListableBeanFactory configurableListableBeanFactory) {
-            final String[] beanNamesForType = configurableListableBeanFactory.getBeanNamesForType(ChatModel.class);
-            if (beanNamesForType.length > 0) {
-                builder.addPropertyReference("chatModel", beanNamesForType[0]);
-            }
-        }
+        // handoffs-description
+        builder.addPropertyValue("handoffDescription", agentConfig.getHandoffDescription());
 
+
+        // chatModel
         if (StringUtils.isNotBlank(agentConfig.getChatModel())) {
             builder.addPropertyReference("chatModel", agentConfig.getChatModel());
         } else {
             builder.addPropertyReference("chatModel", "openAiChatModel");
         }
 
-        // 设置工具列表引用
+        // tools
         if (agentConfig.getTools() != null && !agentConfig.getTools().isEmpty()) {
             ManagedList<RuntimeBeanReference> toolsList = new ManagedList<>();
             for (String toolName : agentConfig.getTools()) {
@@ -114,6 +109,19 @@ public class AgentBeanDefinitionRegistrar implements ImportBeanDefinitionRegistr
                 }
             }
             builder.addPropertyValue("tools", toolsList);
+        }
+
+        // handoffs
+        if (agentConfig.getHandoffs() != null && !agentConfig.getHandoffs().isEmpty()) {
+            ManagedList<RuntimeBeanReference> handoffsList = new ManagedList<>();
+            for (String handoffName : agentConfig.getHandoffs()) {
+                if (beanFactory.containsBean(handoffName)) {
+                    handoffsList.add(new RuntimeBeanReference(handoffName));
+                } else {
+                    throw new IllegalStateException("Handoff bean not found: " + handoffName);
+                }
+            }
+            builder.addPropertyValue("handoffs", handoffsList);
         }
 
         builder.setInitMethodName("init");

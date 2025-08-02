@@ -34,5 +34,22 @@ spring:
 
       - name: assistant
         instructions: You are a helpful assistant
+        handoffs:
+          - customerServiceAgent
+          - orderServiceAgent
         tools:
           - dateTimeTools
+
+      - name: historyTutor
+        instructions: You provide assistance with historical queries. Explain important events and context clearly.
+        handoffDescription: Specialist agent for historical questions
+
+      - name: mathTutor
+        instructions: You provide help with math problems. Explain your reasoning at each step and include examples
+        handoffDescription: Specialist agent for math questions
+
+      - name: triageAgent
+        instructions: You determine which agent/tools to use based on the user's homework question
+        handoffs:
+          - historyTutor
+          - mathTutor
