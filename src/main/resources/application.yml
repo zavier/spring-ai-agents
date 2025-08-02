@@ -1,0 +1,38 @@
+spring:
+  application:
+    name: spring-ai-agents
+
+  ai:
+    openai:
+      api-key: ${DASH_SCOPE_API_KEY}
+      base-url: https://dashscope.aliyuncs.com/compatible-mode/
+      chat:
+        options:
+          model: deepseek-v3
+          temperature: 1
+      embedding:
+        enabled: false
+
+    # agents
+    agents:
+      - name: customerServiceAgent
+        instructions: |
+          你是一个客户服务助理，专门负责处理客户咨询和问题。
+          你需要：
+          1. 耐心倾听客户问题
+          2. 提供准确的信息
+          3. 保持礼貌和专业
+          4. 在无法解决时及时转接人工客服
+        tools:
+          - dateTimeTools
+          # - emailTool
+
+      - name: orderServiceAgent
+        instructions: classpath:instructions/order-service.txt
+        tools:
+          - dateTimeTools
+
+      - name: assistant
+        instructions: You are a helpful assistant
+        tools:
+          - dateTimeTools
